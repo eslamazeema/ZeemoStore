@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeemoStore Admin | Premium Futuristic Gear Manager</title>
+  <meta name="description" content="Manage your products, offers, coupons, and factory resets for ZeemoStore in Egypt.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- ==================== STICKY NAVBAR ==================== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <!-- Brand Logo -->
+      <a href="index.html" class="brand-logo" id="brandLogo">
+        <div class="logo-icon zeemo-logo-badge">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="zeemoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06B6D4" />
+                <stop offset="50%" stop-color="#8B5CF6" />
+                <stop offset="100%" stop-color="#EC4899" />
+              </linearGradient>
+            </defs>
+            <path d="M6 8C6 6.89543 6.89543 6 8 6H24C25.1046 6 26 6.89543 26 8V10C26 10.7403 25.5898 11.417 24.9354 11.7589L13.8 17.5L24 17.5C25.1046 17.5 26 18.3954 26 19.5V24C26 25.1046 25.1046 26 24 26H8C6.89543 26 6 25.1046 6 24V22C6 21.2597 6.41018 20.583 7.0646 20.2411L18.2 14.5L8 14.5C6.89543 14.5 6 13.6046 6 12.5V8Z" fill="url(#zeemoGrad)" />
+            <circle cx="25" cy="7" r="2.5" fill="#06B6D4" />
+          </svg>
+        </div>
+        <span class="logo-text">Zeemo<span class="logo-suffix">Store</span></span>
+      </a>
+
+      <!-- Page Title -->
+      <div style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; color: var(--accent-cyan);">
+        <i class="fa-solid fa-sliders"></i> Admin Portal
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+        <!-- Back to Store Button -->
+        <a href="index.html" class="btn-secondary" style="padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; border-color: var(--accent-cyan); color: var(--accent-cyan);">
+          <i class="fa-solid fa-arrow-left"></i> Back to Store
+        </a>
+
+        <!-- Logout Button -->
+        <button id="adminLogoutBtn" class="btn-secondary" style="padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; display: none; align-items: center; gap: 0.5rem; border-color: var(--accent-danger); color: var(--accent-danger);">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+
+        <!-- Theme Switcher -->
+        <button id="themeToggleBtn" class="nav-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="container" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <!-- Login Gate Container -->
+    <div id="adminLoginGate" style="display: flex; justify-content: center; align-items: center; min-height: 65vh; width: 100%;">
+      <div class="admin-card" style="max-width: 450px; width: 100%; padding: 2.5rem; border-top: 4px solid var(--accent-primary); box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(139, 92, 246, 0.15); border: 2px solid var(--accent-primary); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <h2 style="font-family: var(--font-heading); font-size: 1.6rem; margin-bottom: 0.5rem;">Admin Authentication</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Enter credentials to access the ZeemoStore management system.</p>
+        </div>
+
+        <form id="adminLoginForm" onsubmit="return false;">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="loginUsername">Username</label>
+            <div style="position: relative;">
+              <input type="text" id="loginUsername" class="form-input" required placeholder="admin" style="width: 100%; padding-left: 2.5rem;">
+              <i class="fa-solid fa-user" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-subtle);"></i>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" for="loginPassword">Password</label>
+            <div style="position: relative;">
+              <input type="password" id="loginPassword" class="form-input" required placeholder="••••••••" style="width: 100%; padding-left: 2.5rem;">
+              <i class="fa-solid fa-key" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-subtle);"></i>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 1rem;">
+            Authenticate <i class="fa-solid fa-right-to-bracket"></i>
+          </button>
+        </form>
+
+        <!-- Credentials Hint Badge -->
+        <div style="margin-top: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan); font-size: 1.1rem;"></i>
+          <div>
+            <strong>Demo Credentials:</strong><br>
+            Username: <span style="font-family: monospace; color: var(--accent-cyan);">admin</span> &nbsp;|&nbsp; Password: <span style="font-family: monospace; color: var(--accent-cyan);">admin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Wrapper (Hidden by default) -->
+    <div id="adminDashboardContent" style="display: none;">
+      <!-- Admin Header info card -->
+      <div class="admin-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 4px solid var(--accent-cyan);">
+      <div>
+        <h1 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 0.25rem;">ZeemoStore Control Center</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Add, delete, update products, modify active coupon offerings, and inspect analytics.</p>
+      </div>
+      <span class="admin-badge">STORE MANAGER</span>
+    </div>
+
+    <!-- Admin Nav Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products"><i class="fa-solid fa-boxes-stacked"></i> Products Catalog</button>
+      <button class="admin-tab" data-tab="offers"><i class="fa-solid fa-tags"></i> Offers & Promos</button>
+      <button class="admin-tab" data-tab="stats"><i class="fa-solid fa-chart-line"></i> Analytics & Reset</button>
+      <button class="admin-tab" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings & Categories</button>
+    </div>
+
+    <!-- Tab 1: Products Management -->
+    <div id="adminTabProducts" class="admin-tab-content">
+      <!-- Add Product Form Card -->
+      <div class="admin-card">
+        <h3 class="admin-card-title"><i class="fa-solid fa-plus-circle"></i> Add New Product</h3>
+        <form id="addProductForm" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Product Name *</label>
+              <input type="text" id="newProdName" class="form-input" required placeholder="e.g. Zeemo HoloGlass V1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline *</label>
+              <input type="text" id="newProdTagline" class="form-input" required placeholder="e.g. AR Spatial Holographic Glasses">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select id="newProdCat" class="form-input" required style="cursor: pointer;">
+                <!-- Dynamically populated via JavaScript -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price (EGP) *</label>
+              <input type="number" step="0.01" id="newProdPrice" class="form-input" required placeholder="14999.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Original Price (EGP)</label>
+              <input type="number" step="0.01" id="newProdOriginalPrice" class="form-input" placeholder="17999.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stock Quantity *</label>
+              <input type="number" id="newProdStock" class="form-input" required placeholder="10" value="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Badge Tag</label>
+              <select id="newProdBadge" class="form-input" style="cursor: pointer;">
+                <option value="">None</option>
+                <option value="NEW">NEW</option>
+                <option value="SALE">SALE</option>
+                <option value="BESTSELLER">BESTSELLER</option>
+                <option value="HOT ITEM">HOT ITEM</option>
+                <option value="LIMITED">LIMITED</option>
+              </select>
+            </div>
+            
+            <!-- Image selection / Upload Group -->
+            <div class="form-group" style="grid-column: span 1;">
+              <label class="form-label">Product Image Source</label>
+              <select id="newProdImageType" class="form-input" style="cursor: pointer; margin-bottom: 0.5rem;">
+                <option value="upload">Upload Custom Image File</option>
+                <option value="preset">Use Preset Asset</option>
+                <option value="url">Enter Image URL</option>
+              </select>
+              
+              <!-- Custom Upload File Field -->
+              <div id="imageUploadGroup">
+                <input type="file" id="newProdImageFile" accept="image/*" class="form-input" style="padding: 0.4rem 0.5rem; font-size: 0.85rem;">
+              </div>
+              
+              <!-- Preset Dropdown Field -->
+              <div id="imagePresetGroup" style="display: none;">
+                <select id="newProdImagePreset" class="form-input" style="cursor: pointer;">
+                  <option value="./assets/headphone.png">Headphones Preset</option>
+                  <option value="./assets/smartwatch.png">Smartwatch Preset</option>
+                  <option value="./assets/keyboard.png">Keyboard Preset</option>
+                  <option value="./assets/speaker.png">Speaker Preset</option>
+                  <option value="./assets/lamp.png">Desk Lamp Preset</option>
+                  <option value="./assets/backpack.png">Cyberpack Preset</option>
+                </select>
+              </div>
+              
+              <!-- URL input Field -->
+              <div id="imageUrlGroup" style="display: none;">
+                <input type="url" id="newProdImageUrl" class="form-input" placeholder="e.g. https://images.unsplash.com/photo-...">
+              </div>
+            </div>
+
+            <!-- Live Image Preview Card -->
+            <div class="form-group" style="grid-column: span 1; justify-content: center; align-items: center; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); padding: 0.5rem; background: rgba(0,0,0,0.15); min-height: 120px; text-align: center;">
+              <span id="previewPlaceholder" style="font-size: 0.8rem; color: var(--text-subtle);">Image Preview</span>
+              <img id="imagePreview" src="" alt="Product Preview" style="max-height: 100px; display: none; object-fit: contain; border-radius: var(--radius-sm);">
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label">Description</label>
+              <textarea id="newProdDesc" class="form-input" rows="2" placeholder="Product overview..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 0.5rem;"><i class="fa-solid fa-plus"></i> Publish Product</button>
+        </form>
+      </div>
+
+      <!-- Inventory List Table Card -->
+      <div class="admin-card">
+        <h3 class="admin-card-title"><i class="fa-solid fa-list"></i> Current Store Inventory</h3>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Badge</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminInventoryTableBody">
+              <!-- Injected via admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Offers & Promos -->
+    <div id="adminTabOffers" class="admin-tab-content" style="display: none;">
+      <!-- Add Promo Code Card -->
+      <div class="admin-card">
+        <h3 class="admin-card-title"><i class="fa-solid fa-ticket"></i> Create Promo Code Offer</h3>
+        <form id="addPromoForm" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Promo Code *</label>
+              <input type="text" id="newPromoCode" class="form-input" required placeholder="e.g. SUMMER25" style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Percentage (%) *</label>
+              <input type="number" id="newPromoPct" class="form-input" required placeholder="25" min="1" max="99">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 0.5rem;"><i class="fa-solid fa-check"></i> Add Promo Code</button>
+        </form>
+      </div>
+
+      <!-- Active Promos Table Card -->
+      <div class="admin-card">
+        <h3 class="admin-card-title"><i class="fa-solid fa-percent"></i> Active Promotional Codes</h3>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Promo Code</th>
+                <th>Discount Rate</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminPromosTableBody">
+              <!-- Injected via admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Analytics & Reset -->
+    <div id="adminTabStats" class="admin-tab-content" style="display: none;">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <div class="stat-val" id="statTotalItems">0</div>
+          <div class="stat-label">Active Catalog Items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-tags"></i></div>
+          <div class="stat-val" id="statTotalPromos">0</div>
+          <div class="stat-label">Active Promo Codes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-truck-fast"></i></div>
+          <div class="stat-val" id="statShippingThreshold">EGP 7,500.00</div>
+          <div class="stat-label">Free Shipping Threshold</div>
+        </div>
+      </div>
+
+      <div class="admin-card" style="margin-top: 1.5rem; border-color: rgba(239, 68, 68, 0.3);">
+        <h3 class="admin-card-title" style="color: var(--accent-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Factory Reset</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Restore original store catalog and default promo codes. This will reset custom additions.
+        </p>
+        <button id="resetDefaultsBtn" class="btn-secondary" style="border-color: var(--accent-danger); color: var(--accent-danger);">
+          <i class="fa-solid fa-rotate-left"></i> Restore Factory Defaults
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab 4: Settings & Categories -->
+    <div id="adminTabSettings" class="admin-tab-content" style="display: none;">
+      <!-- Credentials Settings Card -->
+      <div class="admin-card">
+        <h3 class="admin-card-title"><i class="fa-solid fa-user-lock"></i> Change Admin Credentials</h3>
+        <form id="adminCredentialsForm" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">New Username *</label>
+              <input type="text" id="newAdminUsername" class="form-input" required placeholder="admin">
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password *</label>
+              <input type="password" id="newAdminPassword" class="form-input" required placeholder="••••••••">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top: 1rem;"><i class="fa-solid fa-save"></i> Save Credentials</button>
+        </form>
+      </div>
+
+      <!-- Categories Settings Card -->
+      <div class="admin-card" style="margin-top: 1.5rem;">
+        <h3 class="admin-card-title"><i class="fa-solid fa-list-check"></i> Manage Store Categories</h3>
+        
+        <!-- Add Category Form inline -->
+        <form id="addCategoryForm" onsubmit="return false;" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end;">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">New Category Name *</label>
+            <input type="text" id="newCategoryName" class="form-input" required placeholder="e.g. gaming">
+          </div>
+          <button type="submit" class="btn-primary" style="height: 42px; padding: 0 1.5rem;"><i class="fa-solid fa-plus"></i> Add</button>
+        </form>
+
+        <!-- Categories List Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th style="width: 120px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminCategoriesTableBody">
+              <!-- Injected via admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div> <!-- Close adminDashboardContent wrapper -->
+  </main>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="./products.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>

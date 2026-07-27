@@ -63,9 +63,12 @@ const PromoSchema = new mongoose.Schema({
 });
 
 const AdminConfigSchema = new mongoose.Schema({
-  username: { type: String, default: "admin" },
-  password: { type: String, default: "admin" },
   categories: { type: [String], default: ["audio", "wearables", "workspace", "apparel"] }
+});
+
+const AdminUserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
 });
 
 const UserSchema = new mongoose.Schema({
@@ -78,180 +81,86 @@ const UserSchema = new mongoose.Schema({
 const Product = mongoose.model('Product', ProductSchema);
 const Promo = mongoose.model('Promo', PromoSchema);
 const AdminConfig = mongoose.model('AdminConfig', AdminConfigSchema);
+const AdminUser = mongoose.model('AdminUser', AdminUserSchema);
 const User = mongoose.model('User', UserSchema);
 
-// --- DEFAULT SEED DATA ---
+// --- DYNAMIC SEED GENERATOR ---
 
-const DEFAULT_PRODUCTS = [
-  {
-    id: "prod-1",
-    name: "Aura Pro Wireless Headphones",
-    tagline: "Lossless Spatial Audio & Active ANC 2.0",
-    category: "audio",
-    price: 17499.00,
-    originalPrice: 21499.00,
-    rating: 4.9,
-    reviewsCount: 184,
-    badge: "BESTSELLER",
-    image: "./assets/headphone.png",
-    inStock: 8,
-    colors: ["Space Black", "Cyber Violet", "Silver Chrome"],
-    description: "Immerse yourself in precision spatial sound with custom 40mm beryllium drivers, 45-hour ultra battery life, adaptive active noise cancellation, and aircraft-grade aluminum construct.",
-    specs: {
-      "Battery Life": "45 Hours",
-      "Noise Control": "Adaptive ANC (4 microphones)",
-      "Bluetooth": "v5.3 Low Latency",
-      "Weight": "250g"
+function generateMockCatalog(categoriesList) {
+  const products = [];
+  
+  const adjectives = ["Aura", "Pulse", "Nexus", "Chronos", "Vortex", "Apex", "Zenith", "Cipher", "Neutron", "Helios", "Quantum", "Nova", "Hyper", "Cyber", "Spectral", "Matrix", "Tesla", "Vinci", "Alpha", "Titan", "Specter", "Orbit", "Lumina"];
+  
+  const nouns = {
+    audio: ["Headphones", "Earbuds", "Soundbar", "Speaker", "Monitors", "Pod Pro", "Audio Dome"],
+    wearables: ["Smartwatch", "Tracker Band", "Health Ring", "Bio Chrono", "Wrist Monitor"],
+    workspace: ["Keyboard", "Desk Light", "Mouse Pad", "Monitor Arm", "Vertical Mouse", "Macro Pad"],
+    apparel: ["Backpack", "Sling Bag", "Duffel Pack", "Tech Vest", "Transit Jacket"]
+  };
+
+  const images = {
+    audio: ["./assets/headphone.png", "./assets/speaker.png"],
+    wearables: ["./assets/smartwatch.png"],
+    workspace: ["./assets/keyboard.png", "./assets/lamp.png"],
+    apparel: ["./assets/backpack.png"]
+  };
+
+  const taglines = [
+    "Precision engineered for pure performance.",
+    "Curved sapphire display and adaptive bio-sensors.",
+    "Ultra-smooth construction with customized profiles.",
+    "Seamless connectivity and minimalist modern design.",
+    "Aircraft-grade aluminum materials built to last.",
+    "Ergonomic design tailored for premium comfort.",
+    "Gasket mount design with perimeter RGB lighting.",
+    "Next-generation micro-weave fabric for daily use."
+  ];
+
+  const badges = ["BESTSELLER", "HOT ITEM", "NEW", "SALE", "LIMITED", "POPULAR", ""];
+
+  categoriesList.forEach(cat => {
+    const catLower = cat.toLowerCase();
+    const catNouns = nouns[catLower] || ["Gear", "Device", "Accessory"];
+    const catImages = images[catLower] || ["./assets/headphone.png"];
+
+    for (let i = 1; i <= 50; i++) {
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const noun = catNouns[Math.floor(Math.random() * catNouns.length)];
+      const img = catImages[Math.floor(Math.random() * catImages.length)];
+      const tagline = taglines[Math.floor(Math.random() * taglines.length)];
+      const badge = badges[Math.floor(Math.random() * badges.length)];
+      
+      const price = Math.floor(1000 + Math.random() * 24000) + 99.00;
+      const originalPrice = Math.random() > 0.4 ? price + Math.floor(500 + Math.random() * 5000) : null;
+      const inStock = Math.floor(Math.random() * 30);
+      const rating = (4.0 + Math.random() * 1.0).toFixed(2);
+      const reviews = Math.floor(5 + Math.random() * 300);
+
+      products.push({
+        id: `prod-${catLower}-${i}`,
+        name: `${adj} ${noun} ${i > 10 ? 'V' + Math.floor(i / 10) : 'Pro'}`,
+        tagline: tagline,
+        category: catLower,
+        price: price,
+        originalPrice: originalPrice,
+        rating: parseFloat(rating),
+        reviewsCount: reviews,
+        badge: badge,
+        image: img,
+        inStock: inStock,
+        colors: ["Space Black", "Lunar White", "Titanium Gray"],
+        description: `This premium futuristic ${catLower} gear combines cutting-edge technology with high-performance metrics. Features ergonomic craft, intelligent integrations, and lightweight construct.`,
+        specs: {
+          "Condition": "Brand New",
+          "Warranty": "2 Years ZeemoCare",
+          "Material": "Eco-Polymer & Anodized Aluminum"
+        }
+      });
     }
-  },
-  {
-    id: "prod-2",
-    name: "Chronos X Smartwatch",
-    tagline: "Curved Sapphire Display & Bio-Sensors",
-    category: "wearables",
-    price: 14499.00,
-    originalPrice: 17499.00,
-    rating: 4.8,
-    reviewsCount: 142,
-    badge: "HOT ITEM",
-    image: "./assets/smartwatch.png",
-    inStock: 5,
-    colors: ["Titanium Gray", "Stealth Black"],
-    description: "Next-gen titanium wearable featuring real-time health diagnostics, ECG monitoring, dual-frequency GPS, and edge-to-edge curved sapphire AMOLED screen.",
-    specs: {
-      "Display": "1.9\" Curved Sapphire AMOLED",
-      "Water Resistance": "50m (5 ATM)",
-      "Sensors": "ECG, SpO2, Heart Rate, Temp",
-      "Battery": "Up to 7 Days"
-    }
-  },
-  {
-    id: "prod-3",
-    name: "NeonGlide Custom Keyboard",
-    tagline: "Frosted Glass & Hot-Swappable Switches",
-    category: "workspace",
-    price: 9999.00,
-    originalPrice: 11499.00,
-    rating: 4.95,
-    reviewsCount: 96,
-    badge: "NEW",
-    image: "./assets/keyboard.png",
-    inStock: 12,
-    colors: ["Cyber Frost", "Midnight Dark"],
-    description: "Ultra-responsive mechanical keyboard with gasket mount design, sound-absorbing silicone, translucent keycaps, and customizable per-key RGB backlighting.",
-    specs: {
-      "Layout": "75% Compact (82 Keys)",
-      "Switches": "Pre-lubed Linear Crystal Switches",
-      "Connectivity": "Tri-Mode (2.4G, BT 5.1, Type-C)",
-      "Mount": "Gasket Mount System"
-    }
-  },
-  {
-    id: "prod-4",
-    name: "Orbital Sound Sphere",
-    tagline: "360° Room-Filling High Resolution Speaker",
-    category: "audio",
-    price: 7999.00,
-    originalPrice: 9499.00,
-    rating: 4.7,
-    reviewsCount: 88,
-    badge: "SALE",
-    image: "./assets/speaker.png",
-    inStock: 4,
-    colors: ["Midnight Fabric", "Lunar White"],
-    description: "360-degree acoustic acoustic dome speaker with reactive RGB halo ring, built-in smart assistant, and deep bass passive radiators.",
-    specs: {
-      "Output": "60W RMS",
-      "Audio": "Hi-Res Audio Certified",
-      "Lighting": "Dynamic Reactive Ambient Ring",
-      "Multi-room": "AirPlay 2 & Chromecast"
-    }
-  },
-  {
-    id: "prod-5",
-    name: "Zeemo Arc Desk Light",
-    tagline: "Ergonomic Halo & Touch Dimming",
-    category: "workspace",
-    price: 5999.00,
-    originalPrice: 7499.00,
-    rating: 4.85,
-    reviewsCount: 64,
-    badge: "LIMITED",
-    image: "./assets/lamp.png",
-    inStock: 3,
-    colors: ["Anodized Black"],
-    description: "Precision-engineered LED arc lamp designed to reduce eye strain with glare-free forward projection, auto-brightness sensor, and wireless charging base.",
-    specs: {
-      "CRI": "> 95 Ultra-Natural Light",
-      "Brightness": "1200 Lux",
-      "Wireless Charger": "15W Fast Charge Base",
-      "Control": "Capacitive Touch Slider"
-    }
-  },
-  {
-    id: "prod-6",
-    name: "Cyberpack Core V2",
-    tagline: "Waterproof Geometric Everyday Carry",
-    category: "apparel",
-    price: 7499.00,
-    originalPrice: 8999.00,
-    rating: 4.9,
-    reviewsCount: 110,
-    badge: "POPULAR",
-    image: "./assets/backpack.png",
-    inStock: 9,
-    colors: ["Stealth Black", "Cyber Grey"],
-    description: "Hard-shell aerodynamic backpack featuring Fidlock magnetic buckles, anti-theft hidden pockets, dedicated 16-inch laptop chamber, and integrated USB-C pass-through.",
-    specs: {
-      "Capacity": "22 Liters",
-      "Material": "1680D Ballistic Nylon + Polycarbonate",
-      "Laptop Pocket": "Up to 16\" MacBook Pro",
-      "Features": "TSA Approved Lock, Pass-through Port"
-    }
-  },
-  {
-    id: "prod-7",
-    name: "Pulse Pods Spatial In-Ear",
-    tagline: "True Wireless & Active Dynamic Sound",
-    category: "audio",
-    price: 8999.00,
-    originalPrice: 10999.00,
-    rating: 4.75,
-    reviewsCount: 76,
-    badge: "SALE",
-    image: "./assets/headphone.png",
-    inStock: 15,
-    colors: ["Matte Black", "Crystal Clear"],
-    description: "Ultra-compact spatial earbuds with dynamic head tracking, IPX7 sweat resistance, wireless charging case, and crystal-clear tri-mic call technology.",
-    specs: {
-      "Playtime": "8h (32h with case)",
-      "Rating": "IPX7 Waterproof",
-      "Codec": "LDAC / AAC / aptX Adaptive",
-      "Charging": "Qi Wireless + Type-C"
-    }
-  },
-  {
-    id: "prod-8",
-    name: "HyperMat RGB Desk Pad",
-    tagline: "Ultra-Smooth Micro-Weave & Perimeter Glow",
-    category: "workspace",
-    price: 2499.00,
-    originalPrice: 3250.00,
-    rating: 4.8,
-    reviewsCount: 205,
-    badge: "BESTSELLER",
-    image: "./assets/keyboard.png",
-    inStock: 20,
-    colors: ["Stealth Black"],
-    description: "Extra large 900x400mm gaming desk pad with spill-resistant coating, non-slip rubber base, and customizable 12-mode RGB edge light strip.",
-    specs: {
-      "Dimensions": "900 x 400 x 4 mm",
-      "Surface": "Nanometer Speed Cloth",
-      "Lighting": "12 Ambient RGB Modes",
-      "Durability": "Stitched Anti-Fray Edges"
-    }
-  }
-];
+  });
+
+  return products;
+}
 
 const DEFAULT_PROMO_CODES = [
   { code: "ZEEMO20", discountRate: 0.20 },
@@ -262,25 +171,40 @@ const DEFAULT_PROMO_CODES = [
 // Seed MongoDB collections
 async function seedDatabase() {
   try {
+    const configCount = await AdminConfig.countDocuments();
+    let categories = ["audio", "wearables", "workspace", "apparel"];
+    if (configCount === 0) {
+      const defaultConfig = new AdminConfig({
+        categories: categories
+      });
+      await defaultConfig.save();
+      console.log('Seeded database with default Admin configurations.');
+    } else {
+      const config = await AdminConfig.findOne({});
+      categories = config.categories;
+    }
+
     const productCount = await Product.countDocuments();
     if (productCount === 0) {
-      await Product.insertMany(DEFAULT_PRODUCTS);
-      console.log('Seeded MongoDB database with default products catalog.');
+      const seededProducts = generateMockCatalog(categories);
+      await Product.insertMany(seededProducts);
+      console.log(`Seeded MongoDB database with generated mock products (${seededProducts.length} items).`);
     }
+
     const promoCount = await Promo.countDocuments();
     if (promoCount === 0) {
       await Promo.insertMany(DEFAULT_PROMO_CODES);
       console.log('Seeded MongoDB database with default promotional codes.');
     }
-    const configCount = await AdminConfig.countDocuments();
-    if (configCount === 0) {
-      const defaultConfig = new AdminConfig({
+
+    const adminCount = await AdminUser.countDocuments();
+    if (adminCount === 0) {
+      const defaultAdmin = new AdminUser({
         username: "admin",
-        password: "admin",
-        categories: ["audio", "wearables", "workspace", "apparel"]
+        password: "admin"
       });
-      await defaultConfig.save();
-      console.log('Seeded database with default Admin configurations.');
+      await defaultAdmin.save();
+      console.log('Seeded MongoDB database with default Admin user.');
     }
   } catch (err) {
     console.error('Error seeding database:', err.message);
@@ -291,18 +215,21 @@ async function seedDatabase() {
 
 function initializeFileDB() {
   if (!fs.existsSync(FILE_DB_PATH)) {
+    const categories = ["audio", "wearables", "workspace", "apparel"];
+    const seededProducts = generateMockCatalog(categories);
     const defaultData = {
-      products: DEFAULT_PRODUCTS,
+      products: seededProducts,
       promos: DEFAULT_PROMO_CODES,
       adminConfig: {
-        username: "admin",
-        password: "admin",
-        categories: ["audio", "wearables", "workspace", "apparel"]
+        categories: categories
       },
+      admins: [
+        { username: "admin", password: "admin" }
+      ],
       users: []
     };
     fs.writeFileSync(FILE_DB_PATH, JSON.stringify(defaultData, null, 2));
-    console.log('Created local file database local_db.json with default values.');
+    console.log(`Created local file database local_db.json with ${seededProducts.length} mock products.`);
   }
 }
 
@@ -312,10 +239,14 @@ function getLocalFileDB() {
     let dirty = false;
     if (!data.adminConfig) {
       data.adminConfig = {
-        username: "admin",
-        password: "admin",
         categories: ["audio", "wearables", "workspace", "apparel"]
       };
+      dirty = true;
+    }
+    if (!data.admins) {
+      data.admins = [
+        { username: "admin", password: "admin" }
+      ];
       dirty = true;
     }
     if (!data.users) {
@@ -327,10 +258,13 @@ function getLocalFileDB() {
     }
     return data;
   } catch (e) {
+    const categories = ["audio", "wearables", "workspace", "apparel"];
+    const seededProducts = generateMockCatalog(categories);
     const fallback = { 
-      products: DEFAULT_PRODUCTS, 
+      products: seededProducts, 
       promos: DEFAULT_PROMO_CODES,
-      adminConfig: { username: "admin", password: "admin", categories: ["audio", "wearables", "workspace", "apparel"] },
+      adminConfig: { categories: categories },
+      admins: [ { username: "admin", password: "admin" } ],
       users: []
     };
     saveLocalFileDB(fallback);
@@ -344,20 +278,24 @@ function saveLocalFileDB(data) {
 
 // --- API ENDPOINTS ---
 
-// 1. Admin Configurations Endpoints
+// 1. Admin Authentication Endpoints (Multi-Admin)
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+  const userLower = username.toLowerCase();
   if (useLocalFileDB) {
     const db = getLocalFileDB();
-    const config = db.adminConfig;
-    if (config.username === username && config.password === password) {
+    const admin = db.admins.find(a => a.username.toLowerCase() === userLower && a.password === password);
+    if (admin) {
       return res.json({ success: true, message: 'Authenticated successfully' });
     }
     return res.status(401).json({ error: 'Invalid username or password' });
   }
   try {
-    const config = await AdminConfig.findOne({});
-    if (config && config.username === username && config.password === password) {
+    const admin = await AdminUser.findOne({ username: userLower });
+    if (admin && admin.password === password) {
       res.json({ success: true, message: 'Authenticated successfully' });
     } else {
       res.status(401).json({ error: 'Invalid username or password' });
@@ -367,17 +305,91 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
+app.get('/api/admin/users', async (req, res) => {
+  if (useLocalFileDB) {
+    const db = getLocalFileDB();
+    return res.json(db.admins.map(a => ({ username: a.username })));
+  }
+  try {
+    const admins = await AdminUser.find({}, 'username');
+    res.json(admins);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/users', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+  const userLower = username.toLowerCase();
+  if (useLocalFileDB) {
+    const db = getLocalFileDB();
+    const existing = db.admins.find(a => a.username.toLowerCase() === userLower);
+    if (existing) {
+      return res.status(400).json({ error: 'Administrator already exists' });
+    }
+    db.admins.push({ username: userLower, password });
+    saveLocalFileDB(db);
+    return res.status(201).json({ message: 'Administrator created successfully' });
+  }
+  try {
+    const existing = await AdminUser.findOne({ username: userLower });
+    if (existing) {
+      return res.status(400).json({ error: 'Administrator already exists' });
+    }
+    const newAdmin = new AdminUser({ username: userLower, password });
+    await newAdmin.save();
+    res.status(201).json({ message: 'Administrator created successfully' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete('/api/admin/users/:username', async (req, res) => {
+  const userLower = req.params.username.toLowerCase();
+  if (useLocalFileDB) {
+    const db = getLocalFileDB();
+    const index = db.admins.findIndex(a => a.username.toLowerCase() === userLower);
+    if (index !== -1) {
+      if (db.admins.length <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the last administrator' });
+      }
+      db.admins.splice(index, 1);
+      saveLocalFileDB(db);
+      return res.json({ message: 'Administrator deleted successfully' });
+    }
+    return res.status(404).json({ error: 'Administrator not found' });
+  }
+  try {
+    const adminCount = await AdminUser.countDocuments();
+    if (adminCount <= 1) {
+      return res.status(400).json({ error: 'Cannot delete the last administrator' });
+    }
+    const result = await AdminUser.findOneAndDelete({ username: userLower });
+    if (result) {
+      res.json({ message: 'Administrator deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Administrator not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Global Configurations Endpoints
 app.get('/api/admin/config', async (req, res) => {
   if (useLocalFileDB) {
     const db = getLocalFileDB();
-    return res.json({ categories: db.adminConfig.categories, username: db.adminConfig.username });
+    return res.json({ categories: db.adminConfig.categories });
   }
   try {
     const config = await AdminConfig.findOne({});
     if (config) {
-      res.json({ categories: config.categories, username: config.username });
+      res.json({ categories: config.categories });
     } else {
-      res.json({ categories: ["audio", "wearables", "workspace", "apparel"], username: "admin" });
+      res.json({ categories: ["audio", "wearables", "workspace", "apparel"] });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -385,12 +397,29 @@ app.get('/api/admin/config', async (req, res) => {
 });
 
 app.post('/api/admin/config', async (req, res) => {
-  const { username, password, categories } = req.body;
+  const { categories } = req.body;
+  if (!categories) {
+    return res.status(400).json({ error: 'categories array is required' });
+  }
+
   if (useLocalFileDB) {
     const db = getLocalFileDB();
-    if (username) db.adminConfig.username = username;
-    if (password) db.adminConfig.password = password;
-    if (categories) db.adminConfig.categories = categories;
+    const oldCats = db.adminConfig.categories;
+    const deletedCats = oldCats.filter(c => !categories.includes(c));
+    db.adminConfig.categories = categories;
+
+    // Dangling products re-assignment to 'uncategorized'
+    if (deletedCats.length > 0) {
+      if (!db.adminConfig.categories.includes("uncategorized")) {
+        db.adminConfig.categories.push("uncategorized");
+      }
+      db.products.forEach(p => {
+        if (deletedCats.includes(p.category)) {
+          p.category = "uncategorized";
+        }
+      });
+    }
+
     saveLocalFileDB(db);
     return res.json({ message: 'Admin configurations updated successfully in local DB' });
   }
@@ -399,17 +428,77 @@ app.post('/api/admin/config', async (req, res) => {
     if (!config) {
       config = new AdminConfig({});
     }
-    if (username) config.username = username;
-    if (password) config.password = password;
-    if (categories) config.categories = categories;
-    await config.save();
+
+    const oldCats = config.categories || [];
+    const deletedCats = oldCats.filter(c => !categories.includes(c));
+    config.categories = categories;
+
+    if (deletedCats.length > 0) {
+      if (!config.categories.includes("uncategorized")) {
+        config.categories.push("uncategorized");
+      }
+      config.markModified('categories');
+      await config.save();
+
+      // Update products in bulk
+      await Product.updateMany({ category: { $in: deletedCats } }, { $set: { category: "uncategorized" } });
+    } else {
+      await config.save();
+    }
+
     res.json({ message: 'Admin configurations updated successfully', config });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// 2. User Accounts Endpoints (Signup / Login)
+// Category Renaming
+app.post('/api/admin/config/rename-category', async (req, res) => {
+  const { oldName, newName } = req.body;
+  if (!oldName || !newName) {
+    return res.status(400).json({ error: 'oldName and newName are required' });
+  }
+  const oldLower = oldName.toLowerCase();
+  const newLower = newName.toLowerCase().trim();
+
+  if (useLocalFileDB) {
+    const db = getLocalFileDB();
+    const index = db.adminConfig.categories.findIndex(c => c.toLowerCase() === oldLower);
+    if (index !== -1) {
+      db.adminConfig.categories[index] = newLower;
+      // Bulk update products
+      db.products.forEach(p => {
+        if (p.category.toLowerCase() === oldLower) {
+          p.category = newLower;
+        }
+      });
+      saveLocalFileDB(db);
+      return res.json({ message: 'Category renamed successfully in local DB' });
+    }
+    return res.status(404).json({ error: 'Category not found' });
+  }
+  try {
+    const config = await AdminConfig.findOne({});
+    if (config) {
+      const index = config.categories.findIndex(c => c.toLowerCase() === oldLower);
+      if (index !== -1) {
+        config.categories[index] = newLower;
+        config.markModified('categories');
+        await config.save();
+
+        // Update matching products
+        await Product.updateMany({ category: oldLower }, { $set: { category: newLower } });
+
+        return res.json({ message: 'Category renamed successfully' });
+      }
+    }
+    res.status(404).json({ error: 'Category not found' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. User Accounts Endpoints (Storefront Signup / Login)
 app.post('/api/users/register', async (req, res) => {
   const { name, email, phone, password } = req.body;
   if (!name || !email || !phone || !password) {
@@ -471,7 +560,7 @@ app.post('/api/users/login', async (req, res) => {
   }
 });
 
-// 3. Products Routes
+// 4. Products Routes
 app.get('/api/products', async (req, res) => {
   if (useLocalFileDB) {
     const db = getLocalFileDB();
@@ -568,7 +657,7 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// 4. Promos Routes
+// 5. Promos Routes
 app.get('/api/promos', async (req, res) => {
   if (useLocalFileDB) {
     const db = getLocalFileDB();
@@ -646,39 +735,48 @@ app.delete('/api/promos/:code', async (req, res) => {
   }
 });
 
-// 5. Reset Route
+// 6. Reset Route (Wipes collections and generates 50 products per category)
 app.post('/api/reset', async (req, res) => {
+  const categories = ["audio", "wearables", "workspace", "apparel"];
+  const seededProducts = generateMockCatalog(categories);
+  
   if (useLocalFileDB) {
     const defaultData = {
-      products: DEFAULT_PRODUCTS,
+      products: seededProducts,
       promos: DEFAULT_PROMO_CODES,
       adminConfig: {
-        username: "admin",
-        password: "admin",
-        categories: ["audio", "wearables", "workspace", "apparel"]
+        categories: categories
       },
+      admins: [
+        { username: "admin", password: "admin" }
+      ],
       users: []
     };
     saveLocalFileDB(defaultData);
-    return res.json({ message: 'Database reset to factory defaults successfully in local file DB.' });
+    return res.json({ message: `Database reset to factory defaults successfully (generated ${seededProducts.length} mock products in local file DB).` });
   }
   try {
     await Product.deleteMany({});
     await Promo.deleteMany({});
     await AdminConfig.deleteMany({});
+    await AdminUser.deleteMany({});
     await User.deleteMany({});
     
-    await Product.insertMany(DEFAULT_PRODUCTS);
+    await Product.insertMany(seededProducts);
     await Promo.insertMany(DEFAULT_PROMO_CODES);
     
     const defaultConfig = new AdminConfig({
-      username: "admin",
-      password: "admin",
-      categories: ["audio", "wearables", "workspace", "apparel"]
+      categories: categories
     });
     await defaultConfig.save();
     
-    res.json({ message: 'Database reset to factory defaults successfully.' });
+    const defaultAdmin = new AdminUser({
+      username: "admin",
+      password: "admin"
+    });
+    await defaultAdmin.save();
+    
+    res.json({ message: `Database reset to factory defaults successfully (generated ${seededProducts.length} mock products).` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

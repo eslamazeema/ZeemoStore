@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let PRODUCTS = [];
   let PROMO_CODES = {};
   let CATEGORIES = [];
+  let ADMIN_USERS = [];
 
   // --- API DATA FETCHERS ---
   async function fetchProducts() {
@@ -39,6 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
       CATEGORIES = data.categories || [];
     } catch (err) {
       console.error('Error fetching config:', err);
+    }
+  }
+
+  async function fetchAdmins() {
+    try {
+      const res = await fetch('/api/admin/users');
+      if (!res.ok) throw new Error('Admins fetch failed');
+      ADMIN_USERS = await res.json();
+    } catch (err) {
+      console.error('Error fetching admins:', err);
     }
   }
 
@@ -88,12 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
       await fetchProducts();
       await fetchPromos();
       await fetchConfig();
+      await fetchAdmins();
 
       // Render/update metrics upon login
       renderAdminInventoryTable();
       renderAdminPromosTable();
       renderCategoriesList();
       renderCategoryDropdown();
+      renderAdminsTable();
       updateAdminStats();
       updateImagePreview();
     } else {
@@ -151,9 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <tr>
         <td><strong style="color: var(--accent-cyan); font-family: var(--font-heading); font-size: 0.95rem;">${cat}</strong></td>
         <td>
-          <button class="action-btn-danger" onclick="deleteCategoryFromAdmin('${cat}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-            <i class="fa-solid fa-trash"></i> Remove
-          </button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="action-btn" onclick="openRenameCategoryModal('${cat}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--accent-cyan); color: var(--accent-cyan);">
+              <i class="fa-solid fa-pen-to-square"></i> Rename
+            </button>
+            <button class="action-btn-danger" onclick="deleteCategoryFromAdmin('${cat}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              <i class="fa-solid fa-trash"></i> Remove
+            </button>
+          </div>
         </td>
       </tr>
     `).join('');
@@ -161,10 +179,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderCategoryDropdown() {
     const dropdown = document.getElementById('newProdCat');
-    if (!dropdown) return;
-    dropdown.innerHTML = CATEGORIES.map(cat => `
-      <option value="${cat.toLowerCase()}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
-    `).join('');
+    if (dropdown) {
+      dropdown.innerHTML = CATEGORIES.map(cat => `
+        <option value="${cat.toLowerCase()}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+      `).join('');
+    }
+
+    const filterDrop = document.getElementById('filterCategory');
+    if (filterDrop) {
+      const currentSelected = filterDrop.value;
+      filterDrop.innerHTML = `<option value="all">All Categories</option>` + CATEGORIES.map(cat => `
+        <option value="${cat.toLowerCase()}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+      `).join('');
+      filterDrop.value = currentSelected;
+    }
   }
 
   window.deleteCategoryFromAdmin = function(catName) {
@@ -188,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await fetchConfig();
       renderCategoriesList();
       renderCategoryDropdown();
+      renderAdminInventoryTable(); // Refresh table catalog category updates
     })
     .catch(err => {
       console.error(err);
@@ -211,29 +240,134 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const adminCredentialsForm = document.getElementById('adminCredentialsForm');
-  if (adminCredentialsForm) {
-    adminCredentialsForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newUsername = document.getElementById('newAdminUsername').value.trim();
-      const newPassword = document.getElementById('newAdminPassword').value;
+  // --- RENAME CATEGORY MODAL LOGIC ---
+  const renameCategoryModal = document.getElementById('renameCategoryModal');
+  const renameCategoryCloseBtn = document.getElementById('renameCategoryCloseBtn');
+  const renameCategoryForm = document.getElementById('renameCategoryForm');
+  const renameOldCategoryNameInput = document.getElementById('renameOldCategoryName');
+  const renameNewCategoryNameInput = document.getElementById('renameNewCategoryName');
 
-      fetch('/api/admin/config', {
+  window.openRenameCategoryModal = function(catName) {
+    if (renameCategoryModal && renameOldCategoryNameInput && renameNewCategoryNameInput) {
+      renameOldCategoryNameInput.value = catName;
+      renameNewCategoryNameInput.value = catName;
+      renameCategoryModal.classList.add('open');
+    }
+  };
+
+  if (renameCategoryCloseBtn) {
+    renameCategoryCloseBtn.addEventListener('click', () => {
+      if (renameCategoryModal) renameCategoryModal.classList.remove('open');
+    });
+  }
+
+  if (renameCategoryForm) {
+    renameCategoryForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const oldName = renameOldCategoryNameInput.value;
+      const newName = renameNewCategoryNameInput.value.trim().toLowerCase();
+      if (!newName || oldName.toLowerCase() === newName) {
+        if (renameCategoryModal) renameCategoryModal.classList.remove('open');
+        return;
+      }
+
+      fetch('/api/admin/config/rename-category', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: newUsername, password: newPassword })
+        body: JSON.stringify({ oldName, newName })
       })
       .then(res => {
-        if (!res.ok) throw new Error('Failed to update credentials');
+        if (!res.ok) throw new Error('Failed to rename category');
         return res.json();
       })
-      .then(() => {
-        showToast('Admin credentials updated successfully!', 'success');
-        adminCredentialsForm.reset();
+      .then(async () => {
+        showToast(`Category "${oldName}" renamed to "${newName}"!`, 'success');
+        if (renameCategoryModal) renameCategoryModal.classList.remove('open');
+        
+        await fetchConfig();
+        await fetchProducts();
+        
+        renderCategoriesList();
+        renderCategoryDropdown();
+        renderAdminInventoryTable();
       })
       .catch(err => {
         console.error(err);
-        showToast('Error updating credentials.', 'danger');
+        showToast('Error renaming category.', 'danger');
+      });
+    });
+  }
+
+  // --- ADMINISTRATORS ACCOUNT MANAGEMENT ---
+  function renderAdminsTable() {
+    const tableBody = document.getElementById('adminUsersTableBody');
+    if (!tableBody) return;
+    
+    const activeAdminUsername = sessionStorage.getItem('zeemo_active_admin') || '';
+
+    tableBody.innerHTML = ADMIN_USERS.map(user => {
+      const isSelf = user.username.toLowerCase() === activeAdminUsername.toLowerCase();
+      return `
+        <tr>
+          <td><strong style="color: var(--text-main); font-family: monospace; font-size: 1rem;">${user.username}</strong></td>
+          <td>
+            ${isSelf ? 
+              `<span style="color: var(--accent-success); font-size: 0.8rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Logged In</span>` : 
+              `<button class="action-btn-danger" onclick="deleteAdminUser('${user.username}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                <i class="fa-solid fa-trash"></i> Remove
+              </button>`
+            }
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.deleteAdminUser = function(username) {
+    if (!confirm(`Are you sure you want to remove the administrator "${username}"?`)) return;
+    fetch(`/api/admin/users/${username}`, {
+      method: 'DELETE'
+    })
+    .then(res => {
+      if (!res.ok) return res.json().then(err => { throw new Error(err.error) });
+      return res.json();
+    })
+    .then(async () => {
+      showToast(`Removed administrator "${username}"`, 'info');
+      await fetchAdmins();
+      renderAdminsTable();
+    })
+    .catch(err => {
+      console.error(err);
+      showToast(err.message || 'Error deleting administrator.', 'danger');
+    });
+  };
+
+  const addAdminForm = document.getElementById('addAdminForm');
+  if (addAdminForm) {
+    addAdminForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const usernameInput = document.getElementById('newAdminUsername').value.trim();
+      const passwordInput = document.getElementById('newAdminPassword').value;
+
+      fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: usernameInput, password: passwordInput })
+      })
+      .then(res => {
+        if (!res.ok) return res.json().then(err => { throw new Error(err.error) });
+        return res.json();
+      })
+      .then(async () => {
+        showToast(`Administrator "${usernameInput}" created successfully!`, 'success');
+        addAdminForm.reset();
+        await fetchAdmins();
+        renderAdminsTable();
+      })
+      .catch(err => {
+        console.error(err);
+        showToast(err.message || 'Error creating administrator.', 'danger');
       });
     });
   }
@@ -292,10 +426,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- CRUD OPERATIONS ---
 
-  // Render Inventory Table
+  // DOM references for filters
+  const filterSearch = document.getElementById('filterSearch');
+  const filterCategory = document.getElementById('filterCategory');
+  const filterStock = document.getElementById('filterStock');
+  const filterSort = document.getElementById('filterSort');
+
+  // Render Inventory Table (with Interactive Filters)
   function renderAdminInventoryTable() {
     if (!adminInventoryTableBody) return;
-    adminInventoryTableBody.innerHTML = PRODUCTS.map(p => `
+    
+    let filtered = [...PRODUCTS];
+
+    // Search query match
+    if (filterSearch && filterSearch.value.trim()) {
+      const query = filterSearch.value.trim().toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.tagline.toLowerCase().includes(query)
+      );
+    }
+
+    // Category match
+    if (filterCategory && filterCategory.value !== 'all') {
+      const cat = filterCategory.value.toLowerCase();
+      filtered = filtered.filter(p => p.category.toLowerCase() === cat);
+    }
+
+    // Stock availability status
+    if (filterStock && filterStock.value !== 'all') {
+      const val = filterStock.value;
+      if (val === 'instock') {
+        filtered = filtered.filter(p => p.inStock > 0);
+      } else if (val === 'outofstock') {
+        filtered = filtered.filter(p => p.inStock === 0);
+      }
+    }
+
+    // Sort order
+    if (filterSort) {
+      const sortVal = filterSort.value;
+      if (sortVal === 'name_asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortVal === 'name_desc') {
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+      } else if (sortVal === 'price_asc') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortVal === 'price_desc') {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (sortVal === 'stock_asc') {
+        filtered.sort((a, b) => a.inStock - b.inStock);
+      } else if (sortVal === 'stock_desc') {
+        filtered.sort((a, b) => b.inStock - a.inStock);
+      }
+    }
+
+    adminInventoryTableBody.innerHTML = filtered.map(p => `
       <tr>
         <td>
           <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -318,6 +504,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `).join('');
   }
+
+  // Bind filter events
+  if (filterSearch) filterSearch.addEventListener('input', renderAdminInventoryTable);
+  if (filterCategory) filterCategory.addEventListener('change', renderAdminInventoryTable);
+  if (filterStock) filterStock.addEventListener('change', renderAdminInventoryTable);
+  if (filterSort) filterSort.addEventListener('change', renderAdminInventoryTable);
 
   // Render Promos Table
   function renderAdminPromosTable() {
@@ -555,6 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         isAuthenticated = true;
         sessionStorage.setItem('zeemo_admin_authenticated', 'true');
+        sessionStorage.setItem('zeemo_active_admin', usernameInput); // Save logged in username
         updateAuthView();
         showToast('Successfully authenticated!', 'success');
         document.getElementById('loginUsername').value = '';

@@ -219,6 +219,44 @@
       <!-- Inventory List Table Card -->
       <div class="admin-card">
         <h3 class="admin-card-title"><i class="fa-solid fa-list"></i> Current Store Inventory</h3>
+        
+        <!-- Interactive Catalog Filters -->
+        <div class="table-filters" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--radius-sm);">
+          <div class="filter-group" style="flex: 2; min-width: 200px;">
+            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Search Product Name / Tagline</label>
+            <div style="position: relative;">
+              <input type="text" id="filterSearch" class="form-input" placeholder="Search..." style="padding-left: 2.2rem;">
+              <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-subtle);"></i>
+            </div>
+          </div>
+          <div class="filter-group" style="flex: 1; min-width: 130px;">
+            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Category</label>
+            <select id="filterCategory" class="form-input" style="cursor: pointer;">
+              <option value="all">All Categories</option>
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="filter-group" style="flex: 1; min-width: 130px;">
+            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Stock Status</label>
+            <select id="filterStock" class="form-input" style="cursor: pointer;">
+              <option value="all">All Stock Statuses</option>
+              <option value="instock">In Stock</option>
+              <option value="outofstock">Out of Stock</option>
+            </select>
+          </div>
+          <div class="filter-group" style="flex: 1; min-width: 130px;">
+            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Sort By</label>
+            <select id="filterSort" class="form-input" style="cursor: pointer;">
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="price_asc">Price (Low to High)</option>
+              <option value="price_desc">Price (High to Low)</option>
+              <option value="stock_asc">Stock (Low to High)</option>
+              <option value="stock_desc">Stock (High to Low)</option>
+            </select>
+          </div>
+        </div>
+
         <div class="admin-table-wrapper">
           <table class="admin-table">
             <thead>
@@ -313,22 +351,37 @@
 
     <!-- Tab 4: Settings & Categories -->
     <div id="adminTabSettings" class="admin-tab-content" style="display: none;">
-      <!-- Credentials Settings Card -->
+      <!-- Administrators Management Card -->
       <div class="admin-card">
-        <h3 class="admin-card-title"><i class="fa-solid fa-user-lock"></i> Change Admin Credentials</h3>
-        <form id="adminCredentialsForm" onsubmit="return false;">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">New Username *</label>
-              <input type="text" id="newAdminUsername" class="form-input" required placeholder="admin">
-            </div>
-            <div class="form-group">
-              <label class="form-label">New Password *</label>
-              <input type="password" id="newAdminPassword" class="form-input" required placeholder="••••••••">
-            </div>
+        <h3 class="admin-card-title"><i class="fa-solid fa-users-gear"></i> Manage Administrators</h3>
+        
+        <!-- Add Admin Form inline -->
+        <form id="addAdminForm" onsubmit="return false;" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 150px;">
+            <label class="form-label">New Username *</label>
+            <input type="text" id="newAdminUsername" class="form-input" required placeholder="e.g. moderator">
           </div>
-          <button type="submit" class="btn-primary" style="margin-top: 1rem;"><i class="fa-solid fa-save"></i> Save Credentials</button>
+          <div class="form-group" style="flex: 1; min-width: 150px;">
+            <label class="form-label">Password *</label>
+            <input type="password" id="newAdminPassword" class="form-input" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn-primary" style="height: 42px; padding: 0 1.5rem;"><i class="fa-solid fa-user-plus"></i> Add Admin</button>
         </form>
+
+        <!-- Admins List Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th style="width: 120px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <!-- Injected via admin.js -->
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Categories Settings Card -->
@@ -350,7 +403,7 @@
             <thead>
               <tr>
                 <th>Category Name</th>
-                <th style="width: 120px;">Action</th>
+                <th style="width: 220px;">Action</th>
               </tr>
             </thead>
             <tbody id="adminCategoriesTableBody">
@@ -362,6 +415,24 @@
     </div>
     </div> <!-- Close adminDashboardContent wrapper -->
   </main>
+
+  <!-- ==================== RENAME CATEGORY MODAL ==================== -->
+  <div id="renameCategoryModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px; padding: 2rem; border-top: 4px solid var(--accent-cyan);">
+      <button id="renameCategoryCloseBtn" class="modal-close" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 1rem;"><i class="fa-solid fa-pen-to-square"></i> Rename Category</h3>
+      <form id="renameCategoryForm" onsubmit="return false;">
+        <input type="hidden" id="renameOldCategoryName">
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label">New Category Name *</label>
+          <input type="text" id="renameNewCategoryName" class="form-input" required placeholder="e.g. sound">
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+          Update Category Name <i class="fa-solid fa-check"></i>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
   <div id="toastContainer" class="toast-container"></div>

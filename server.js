@@ -787,7 +787,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`ZeemoStore Server running at http://localhost:${PORT}`);
-});
+// Export app for serverless platforms (like Vercel)
+module.exports = app;
+
+// Start Server locally or on container platforms
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`ZeemoStore Server running at http://localhost:${PORT}`);
+  });
+}

@@ -20,23 +20,28 @@ app.use(express.static(path.join(__dirname)));
 const FILE_DB_PATH = path.join(__dirname, 'local_db.json');
 let useLocalFileDB = false;
 
-// Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/zeemostore';
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000 // Fast fail in 5s if local MongoDB is not running
-})
-.then(() => {
-  console.log('Successfully connected to MongoDB Database.');
-  seedDatabase();
-})
-.catch(err => {
-  console.warn('MongoDB connection failed. Falling back to local file-based database (local_db.json).');
-  console.warn('Error details:', err.message);
+// Connect to MongoDB if URI is provided, otherwise immediately use local_db.json
+const MONGODB_URI = process.env.MONGODB_URI;
+if (MONGODB_URI) {
+  mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000
+  })
+  .then(() => {
+    console.log('Successfully connected to MongoDB Database.');
+    seedDatabase();
+  })
+  .catch(err => {
+    console.warn('MongoDB connection failed. Falling back to local file-based database (local_db.json).');
+    useLocalFileDB = true;
+    initializeFileDB();
+  });
+} else {
+  console.log('No MONGODB_URI configured. Using local file-based database (local_db.json).');
   useLocalFileDB = true;
   initializeFileDB();
-});
+}
 
 // --- SCHEMAS & MODELS ---
 

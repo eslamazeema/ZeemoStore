@@ -122,9 +122,10 @@
     <!-- Admin Nav Tabs -->
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="products"><i class="fa-solid fa-boxes-stacked"></i> Products Catalog</button>
+      <button class="admin-tab" data-tab="categories"><i class="fa-solid fa-list-check"></i> Categories (التصنيفات)</button>
       <button class="admin-tab" data-tab="offers"><i class="fa-solid fa-tags"></i> Offers & Promos</button>
       <button class="admin-tab" data-tab="stats"><i class="fa-solid fa-chart-line"></i> Analytics & Reset</button>
-      <button class="admin-tab" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings & Categories</button>
+      <button class="admin-tab" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings & Admins</button>
     </div>
 
     <!-- Tab 1: Products Management -->
@@ -280,6 +281,45 @@
       </div>
     </div>
 
+    <!-- Tab: Categories Management (إدارة وتعديل التصنيفات) -->
+    <div id="adminTabCategories" class="admin-tab-content" style="display: none;">
+      <div class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+          <div>
+            <h3 class="admin-card-title" style="margin-bottom: 0.25rem;"><i class="fa-solid fa-list-check"></i> إدارة وتعديل أسماء التصنيفات (Store Categories)</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+              يمكنك تعديل اسم أي تصنيف وسيقوم النظام بتحديث اسم التصنيف تلقائياً لجميع المنتجات التابعة له فوراً في المتجر.
+            </p>
+          </div>
+        </div>
+
+        <!-- Add Category Form inline -->
+        <form id="addCategoryForm" onsubmit="return false;" style="display: flex; gap: 1rem; margin-bottom: 2rem; align-items: flex-end; flex-wrap: wrap; background: var(--bg-glass); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-sm);">
+          <div class="form-group" style="flex: 1; min-width: 240px;">
+            <label class="form-label"><i class="fa-solid fa-plus-circle"></i> اسم تصنيف جديد (New Category Name) *</label>
+            <input type="text" id="newCategoryName" class="form-input" required placeholder="مثال: سماعات أو شاشات أو gaming">
+          </div>
+          <button type="submit" class="btn-primary" style="height: 44px; padding: 0 1.8rem; font-weight: 600;"><i class="fa-solid fa-plus"></i> إضافة تصنيف جديد</button>
+        </form>
+
+        <!-- Categories List Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>اسم التصنيف (Category Name)</th>
+                <th>عدد المنتجات المرتبطة (Products Count)</th>
+                <th style="width: 260px; text-align: center;">الإجراءات (Actions)</th>
+              </tr>
+            </thead>
+            <tbody id="adminCategoriesTableBody">
+              <!-- Injected via admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Tab 2: Offers & Promos -->
     <div id="adminTabOffers" class="admin-tab-content" style="display: none;">
       <!-- Add Promo Code Card -->
@@ -387,34 +427,6 @@
         </div>
       </div>
 
-      <!-- Categories Settings Card -->
-      <div class="admin-card" style="margin-top: 1.5rem;">
-        <h3 class="admin-card-title"><i class="fa-solid fa-list-check"></i> Manage Store Categories</h3>
-        
-        <!-- Add Category Form inline -->
-        <form id="addCategoryForm" onsubmit="return false;" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-end;">
-          <div class="form-group" style="flex: 1;">
-            <label class="form-label">New Category Name *</label>
-            <input type="text" id="newCategoryName" class="form-input" required placeholder="e.g. gaming">
-          </div>
-          <button type="submit" class="btn-primary" style="height: 42px; padding: 0 1.5rem;"><i class="fa-solid fa-plus"></i> Add</button>
-        </form>
-
-        <!-- Categories List Table -->
-        <div class="admin-table-wrapper">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Category Name</th>
-                <th style="width: 220px;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminCategoriesTableBody">
-              <!-- Injected via admin.js -->
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
     </div> <!-- Close adminDashboardContent wrapper -->
   </main>
@@ -427,11 +439,11 @@
       <form id="renameCategoryForm" onsubmit="return false;">
         <input type="hidden" id="renameOldCategoryName">
         <div class="form-group" style="margin-bottom: 1.25rem;">
-          <label class="form-label">New Category Name *</label>
-          <input type="text" id="renameNewCategoryName" class="form-input" required placeholder="e.g. sound">
+          <label class="form-label">الاسم الجديد للتصنيف (New Category Name) *</label>
+          <input type="text" id="renameNewCategoryName" class="form-input" required placeholder="مثال: سماعات أو شاشات أو sound" style="font-size: 1rem; padding: 0.75rem;">
         </div>
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
-          Update Category Name <i class="fa-solid fa-check"></i>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem; font-weight: 600;">
+          حفظ وتحديث اسم التصنيف <i class="fa-solid fa-check"></i>
         </button>
       </form>
     </div>

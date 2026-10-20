@@ -150,6 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const targetTab = tab.dataset.tab;
       document.getElementById('adminTabProducts').style.display = targetTab === 'products' ? 'block' : 'none';
+      const catTab = document.getElementById('adminTabCategories');
+      if (catTab) catTab.style.display = targetTab === 'categories' ? 'block' : 'none';
       document.getElementById('adminTabOffers').style.display = targetTab === 'offers' ? 'block' : 'none';
       document.getElementById('adminTabStats').style.display = targetTab === 'stats' ? 'block' : 'none';
       document.getElementById('adminTabSettings').style.display = targetTab === 'settings' ? 'block' : 'none';
@@ -160,21 +162,33 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCategoriesList() {
     const tableBody = document.getElementById('adminCategoriesTableBody');
     if (!tableBody) return;
-    tableBody.innerHTML = CATEGORIES.map(cat => `
-      <tr>
-        <td><strong style="color: var(--accent-cyan); font-family: var(--font-heading); font-size: 0.95rem;">${cat}</strong></td>
-        <td>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="action-btn" onclick="openRenameCategoryModal('${cat}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--accent-cyan); color: var(--accent-cyan);">
-              <i class="fa-solid fa-pen-to-square"></i> Rename
-            </button>
-            <button class="action-btn-danger" onclick="deleteCategoryFromAdmin('${cat}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-              <i class="fa-solid fa-trash"></i> Remove
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tableBody.innerHTML = CATEGORIES.map(cat => {
+      const count = PRODUCTS.filter(p => p.category && p.category.toLowerCase() === cat.toLowerCase()).length;
+      return `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="product-cat" style="font-size: 0.95rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: var(--radius-sm);">${cat}</span>
+            </div>
+          </td>
+          <td>
+            <span style="font-weight: 600; color: var(--accent-cyan); font-size: 0.95rem;">
+              <i class="fa-solid fa-box-open" style="margin-right: 0.3rem;"></i> ${count} منتج
+            </span>
+          </td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; gap: 0.5rem; justify-content: center;">
+              <button class="action-btn" onclick="openRenameCategoryModal('${cat}')" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 600; cursor: pointer;">
+                <i class="fa-solid fa-pen-to-square"></i> تعديل الاسم (Rename)
+              </button>
+              <button class="action-btn-danger" onclick="deleteCategoryFromAdmin('${cat}')" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer;">
+                <i class="fa-solid fa-trash"></i> حذف
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function renderCategoryDropdown() {
@@ -252,12 +266,24 @@ document.addEventListener('DOMContentLoaded', () => {
       renameOldCategoryNameInput.value = catName;
       renameNewCategoryNameInput.value = catName;
       renameCategoryModal.classList.add('open');
+      setTimeout(() => {
+        renameNewCategoryNameInput.focus();
+        renameNewCategoryNameInput.select();
+      }, 100);
     }
   };
 
   if (renameCategoryCloseBtn) {
     renameCategoryCloseBtn.addEventListener('click', () => {
       if (renameCategoryModal) renameCategoryModal.classList.remove('open');
+    });
+  }
+
+  if (renameCategoryModal) {
+    renameCategoryModal.addEventListener('click', (e) => {
+      if (e.target === renameCategoryModal) {
+        renameCategoryModal.classList.remove('open');
+      }
     });
   }
 

@@ -17,8 +17,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // File-based Database Fallback Configurations (in case local MongoDB is absent)
-const FILE_DB_PATH = path.join(__dirname, 'local_db.json');
+const FILE_DB_PATH = process.env.VERCEL
+  ? path.join('/tmp', 'local_db.json')
+  : path.join(__dirname, 'local_db.json');
+const BUNDLE_DB_PATH = path.join(__dirname, 'local_db.json');
 let useLocalFileDB = false;
+let memoryDB = null;
 
 // Connect to MongoDB if URI is provided, otherwise immediately use local_db.json
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -219,8 +223,18 @@ async function seedDatabase() {
 // --- FILE SYSTEM DATABASE FALLBACK HELPERS ---
 
 function initializeFileDB() {
+  if (process.env.VERCEL && !fs.existsSync(FILE_DB_PATH)) {
+    if (fs.existsSync(BUNDLE_DB_PATH)) {
+      try {
+        fs.copyFileSync(BUNDLE_DB_PATH, FILE_DB_PATH);
+      } catch (e) {
+        console.warn('Could not copy bundle DB to /tmp:', e.message);
+      }
+    }
+  }
+
   if (!fs.existsSync(FILE_DB_PATH)) {
-    const categories = ["audio", "wearables", "workspace", "apparel"];
+    const categories = ["sound", "wearables", "workspace", "apparel"];
     const seededProducts = generateMockCatalog(categories);
     const defaultData = {
       products: seededProducts,
@@ -233,37 +247,39 @@ function initializeFileDB() {
       ],
       users: []
     };
-    fs.writeFileSync(FILE_DB_PATH, JSON.stringify(defaultData, null, 2));
-    console.log(`Created local file database local_db.json with ${seededProducts.length} mock products.`);
+    try {
+      fs.writeFileSync(FILE_DB_PATH, JSON.stringify(defaultData, null, 2));
+    } catch (e) {
+      console.warn('Could not write FILE_DB_PATH:', e.message);
+    }
+    memoryDB = defaultData;
+  } else {
+    try {
+      memoryDB = JSON.parse(fs.readFileSync(FILE_DB_PATH, 'utf-8'));
+    } catch (e) {
+      console.warn('Could not parse FILE_DB_PATH:', e.message);
+    }
   }
 }
 
 function getLocalFileDB() {
+  if (memoryDB) return memoryDB;
   try {
-    const data = JSON.parse(fs.readFileSync(FILE_DB_PATH));
-    let dirty = false;
+    const targetPath = fs.existsSync(FILE_DB_PATH) ? FILE_DB_PATH : BUNDLE_DB_PATH;
+    const data = JSON.parse(fs.readFileSync(targetPath, 'utf-8'));
     if (!data.adminConfig) {
-      data.adminConfig = {
-        categories: ["audio", "wearables", "workspace", "apparel"]
-      };
-      dirty = true;
+      data.adminConfig = { categories: ["sound", "wearables", "workspace", "apparel"] };
     }
     if (!data.admins) {
-      data.admins = [
-        { username: "admin", password: "admin" }
-      ];
-      dirty = true;
+      data.admins = [{ username: "admin", password: "admin" }];
     }
     if (!data.users) {
       data.users = [];
-      dirty = true;
     }
-    if (dirty) {
-      saveLocalFileDB(data);
-    }
+    memoryDB = data;
     return data;
   } catch (e) {
-    const categories = ["audio", "wearables", "workspace", "apparel"];
+    const categories = ["sound", "wearables", "workspace", "apparel"];
     const seededProducts = generateMockCatalog(categories);
     const fallback = { 
       products: seededProducts, 
@@ -272,13 +288,18 @@ function getLocalFileDB() {
       admins: [ { username: "admin", password: "admin" } ],
       users: []
     };
-    saveLocalFileDB(fallback);
+    memoryDB = fallback;
     return fallback;
   }
 }
 
 function saveLocalFileDB(data) {
-  fs.writeFileSync(FILE_DB_PATH, JSON.stringify(data, null, 2));
+  memoryDB = data;
+  try {
+    fs.writeFileSync(FILE_DB_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.warn('Failed to save to filesystem:', err.message);
+  }
 }
 
 // --- API ENDPOINTS ---

@@ -195,9 +195,22 @@ async function seedDatabase() {
 
     const productCount = await Product.countDocuments();
     if (productCount === 0) {
-      const seededProducts = generateMockCatalog(categories);
+      let seededProducts = [];
+      if (fs.existsSync(BUNDLE_DB_PATH)) {
+        try {
+          const fileData = JSON.parse(fs.readFileSync(BUNDLE_DB_PATH, 'utf-8'));
+          if (fileData.products && fileData.products.length > 0) {
+            seededProducts = fileData.products;
+          }
+        } catch (e) {
+          console.warn('Could not read BUNDLE_DB_PATH for seeding:', e.message);
+        }
+      }
+      if (seededProducts.length === 0) {
+        seededProducts = generateMockCatalog(categories);
+      }
       await Product.insertMany(seededProducts);
-      console.log(`Seeded MongoDB database with generated mock products (${seededProducts.length} items).`);
+      console.log(`Seeded MongoDB database with products (${seededProducts.length} items).`);
     }
 
     const promoCount = await Promo.countDocuments();
@@ -512,8 +525,8 @@ app.post('/api/admin/config/rename-category', async (req, res) => {
         config.markModified('categories');
         await config.save();
 
-        // Update matching products
-        await Product.updateMany({ category: oldLower }, { $set: { category: newLower } });
+        // Update matching products with regex for robust case-insensitivity
+        await Product.updateMany({ category: { $regex: new RegExp('^' + oldLower + '$', 'i') } }, { $set: { category: newLower } });
 
         return res.json({ message: 'Category renamed successfully' });
       }

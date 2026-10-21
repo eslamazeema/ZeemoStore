@@ -821,8 +821,17 @@ app.post('/api/reset', async (req, res) => {
   }
 });
 
-// Fallback: send index.html
+// Fallback: send index.html only for page navigation requests (never for static assets)
 app.get('*', (req, res) => {
+  if (req.path.endsWith('.css')) {
+    return res.status(404).type('text/css').send('/* CSS Not Found */');
+  }
+  if (req.path.endsWith('.js')) {
+    return res.status(404).type('application/javascript').send('// JS Not Found');
+  }
+  if (req.path.startsWith('/assets/')) {
+    return res.status(404).send('Asset Not Found');
+  }
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

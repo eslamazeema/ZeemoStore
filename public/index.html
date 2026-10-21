@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeemoStore | Premium Futuristic Gear & Smart Accessories</title>
+  <meta name="description" content="Explore high-performance spatial audio, futuristic smartwatches, mechanical keyboards, and luxury desk accessories at ZeemoStore.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/style.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7968296998324704"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- ==================== STICKY NAVBAR ==================== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <!-- Brand Logo -->
+      <a href="#" class="brand-logo" id="brandLogo">
+        <div class="logo-icon zeemo-logo-badge">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="zeemoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06B6D4" />
+                <stop offset="50%" stop-color="#8B5CF6" />
+                <stop offset="100%" stop-color="#EC4899" />
+              </linearGradient>
+            </defs>
+            <path d="M6 8C6 6.89543 6.89543 6 8 6H24C25.1046 6 26 6.89543 26 8V10C26 10.7403 25.5898 11.417 24.9354 11.7589L13.8 17.5L24 17.5C25.1046 17.5 26 18.3954 26 19.5V24C26 25.1046 25.1046 26 24 26H8C6.89543 26 6 25.1046 6 24V22C6 21.2597 6.41018 20.583 7.0646 20.2411L18.2 14.5L8 14.5C6.89543 14.5 6 13.6046 6 12.5V8Z" fill="url(#zeemoGrad)" />
+            <circle cx="25" cy="7" r="2.5" fill="#06B6D4" />
+          </svg>
+        </div>
+        <span class="logo-text">Zeemo<span class="logo-suffix">Store</span></span>
+      </a>
+
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search gear, audio, wearables..." aria-label="Search products">
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+        <!-- User Menu Wrapper -->
+        <div class="user-menu-wrapper" id="userMenuWrapper">
+          <button id="userAccountBtn" class="nav-btn" aria-label="User Account" title="Sign In / Register">
+            <i class="fa-regular fa-user"></i>
+          </button>
+          
+          <!-- User Dropdown (Hidden by default) -->
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+              <div class="user-name-display" id="userNameDisplay">Welcome, Guest</div>
+              <div class="user-email-display" id="userEmailDisplay">Sign in to sync your cart</div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" id="userProfileLink" onclick="event.preventDefault();"><i class="fa-solid fa-id-card"></i> My Profile</a>
+            <a href="#" class="dropdown-item" id="userLogoutBtn" onclick="event.preventDefault();"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+          </div>
+        </div>
+
+        <!-- Theme Switcher -->
+        <button id="themeToggleBtn" class="nav-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+
+        <!-- Wishlist Button -->
+        <button id="wishlistOpenBtn" class="nav-btn" aria-label="View Wishlist" title="View Wishlist">
+          <i class="fa-regular fa-heart"></i>
+          <span id="wishlistBadge" class="badge-count">0</span>
+        </button>
+
+        <!-- Cart Button -->
+        <button id="cartOpenBtn" class="nav-btn" aria-label="View Shopping Cart" title="View Shopping Cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cartBadge" class="badge-count">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main>
+    <!-- Hero Banner -->
+    <section class="hero-section container">
+      <div class="hero-card">
+        <div class="hero-content">
+          <div class="hero-tag">
+            <i class="fa-solid fa-sparkles"></i> Zeemo Exclusive Drop 2026
+          </div>
+          <h1 class="hero-title">Elevate Your <span>Digital Lifestyle</span></h1>
+          <p class="hero-desc">
+            Discover luxury spatial audio, curved bio-wearables, and precision desk gear engineered for ultra-performance.
+          </p>
+          <div class="hero-cta-group">
+            <button class="btn-primary" id="heroExploreBtn">
+              Explore Collection <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button class="btn-secondary" id="heroBestsellerBtn">
+              View Bestsellers
+            </button>
+          </div>
+        </div>
+        <div class="hero-image-wrapper">
+          <img src="./assets/headphone.png" alt="Aura Pro Headphones" class="hero-img" id="heroImg">
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls & Filter Bar -->
+    <section class="controls-section container">
+      <div class="controls-wrapper">
+        <!-- Category Tabs -->
+        <div class="category-tabs" id="categoryTabs">
+          <button class="cat-tab active" data-category="all">All Products</button>
+          <button class="cat-tab" data-category="audio"><i class="fa-solid fa-headphones"></i> Audio</button>
+          <button class="cat-tab" data-category="wearables"><i class="fa-solid fa-stopwatch"></i> Wearables</button>
+          <button class="cat-tab" data-category="workspace"><i class="fa-solid fa-keyboard"></i> Workspace</button>
+          <button class="cat-tab" data-category="apparel"><i class="fa-solid fa-bag-shopping"></i> Apparel</button>
+        </div>
+
+        <!-- Sorting -->
+        <div class="sort-wrapper">
+          <span class="sort-label"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort By:</span>
+          <select id="sortSelect" class="sort-select" aria-label="Sort products">
+            <option value="featured">Featured First</option>
+            <option value="rating">Highest Rated</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Catalog Product Grid -->
+    <section class="catalog-section container">
+      <div id="productGrid" class="product-grid">
+        <!-- Injected dynamically via app.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== CART SLIDE-OUT DRAWER ==================== -->
+  <div id="cartBackdrop" class="drawer-backdrop"></div>
+  <aside id="cartDrawer" class="drawer" aria-label="Shopping Cart">
+    <div class="drawer-header">
+      <h2 class="drawer-title"><i class="fa-solid fa-bag-shopping"></i> Your Cart</h2>
+      <button id="cartCloseBtn" class="close-btn" aria-label="Close Cart"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Free Shipping Progress -->
+    <div class="shipping-bar-container">
+      <div id="shippingText" class="shipping-text">Add EGP 7,500.00 more for FREE express shipping!</div>
+      <div class="progress-track">
+        <div id="shippingProgressFill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Cart Item List -->
+    <div id="cartItemList" class="drawer-body">
+      <!-- Cart items injected here -->
+    </div>
+
+    <!-- Cart Footer & Summary -->
+    <div class="drawer-footer">
+      <div class="promo-form">
+        <input type="text" id="promoCodeInput" class="promo-input" placeholder="Promo Code (e.g. ZEEMO20)">
+        <button id="applyPromoBtn" class="btn-secondary" style="padding: 0.6rem 1rem;">Apply</button>
+      </div>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">EGP 0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Discount</span>
+        <span id="cartDiscount">-EGP 0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Estimated Tax (8%)</span>
+        <span id="cartTax">EGP 0.00</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="cartTotal">EGP 0.00</span>
+      </div>
+
+      <button id="proceedCheckoutBtn" class="checkout-btn">
+        Proceed to Checkout <i class="fa-solid fa-lock"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== WISHLIST SLIDE-OUT DRAWER ==================== -->
+  <div id="wishlistBackdrop" class="drawer-backdrop"></div>
+  <aside id="wishlistDrawer" class="drawer" aria-label="Wishlist Drawer">
+    <div class="drawer-header">
+      <h2 class="drawer-title"><i class="fa-solid fa-heart" style="color: var(--accent-pink);"></i> Saved Wishlist</h2>
+      <button id="wishlistCloseBtn" class="close-btn" aria-label="Close Wishlist"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="wishlistItemList" class="drawer-body">
+      <!-- Wishlist items injected here -->
+    </div>
+  </aside>
+
+  <!-- ==================== PRODUCT DETAIL MODAL ==================== -->
+  <div id="productModalOverlay" class="modal-overlay">
+    <div class="modal-card">
+      <button id="modalCloseBtn" class="modal-close" aria-label="Close details"><i class="fa-solid fa-xmark"></i></button>
+      <div id="productModalContent" class="product-modal-grid">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CHECKOUT MODAL ==================== -->
+  <div id="checkoutModalOverlay" class="modal-overlay">
+    <div class="modal-card checkout-modal-card">
+      <button id="checkoutCloseBtn" class="modal-close" aria-label="Close Checkout"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step active" id="step1Indicator">
+          <div class="step-num">1</div>
+          <span class="step-label">Shipping</span>
+        </div>
+        <div class="step" id="step2Indicator">
+          <div class="step-num">2</div>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step" id="step3Indicator">
+          <div class="step-num">3</div>
+          <span class="step-label">Confirmation</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Shipping Form -->
+      <div id="checkoutStep1">
+        <h2 style="font-family: var(--font-heading); margin-bottom: 1rem;">Shipping Details</h2>
+        <form id="shippingForm" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" required placeholder="Alex">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" required placeholder="Vance">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" required placeholder="alex@zeemostore.io">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Street Address</label>
+              <input type="text" class="form-input" required placeholder="742 Cyberpunk Blvd">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" required placeholder="Neo Tokyo">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Zip Code</label>
+              <input type="text" class="form-input" required placeholder="10001">
+            </div>
+          </div>
+          <button type="submit" id="toStep2Btn" class="btn-primary" style="width: 100%; justify-content: center;">
+            Continue to Payment <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 2: Payment Form -->
+      <div id="checkoutStep2" style="display: none;">
+        <h2 style="font-family: var(--font-heading); margin-bottom: 1rem;">Payment Method</h2>
+        <form id="paymentForm" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Cardholder Name</label>
+              <input type="text" class="form-input" required placeholder="Alex Vance">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Card Number</label>
+              <input type="text" class="form-input" required placeholder="4532 •••• •••• 8892">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expiry Date</label>
+              <input type="text" class="form-input" required placeholder="12/28">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVC Code</label>
+              <input type="text" class="form-input" required placeholder="942">
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="button" id="backToStep1Btn" class="btn-secondary" style="flex: 1;">Back</button>
+            <button type="submit" id="completeOrderBtn" class="btn-primary" style="flex: 2; justify-content: center;">
+              Place Order & Pay <span id="finalCheckoutTotal">EGP 0.00</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 3: Order Confirmation -->
+      <div id="checkoutStep3" style="display: none;">
+        <div class="order-success-box">
+          <div class="success-icon-wrapper">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <h2 style="font-family: var(--font-heading); font-size: 2rem; margin-bottom: 0.5rem;">Order Placed!</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Thank you for shopping with ZeemoStore. Order confirmation and tracking details sent to your email.
+          </p>
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; text-align: left;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Order Reference ID</div>
+            <div id="orderRefId" style="font-weight: 700; font-family: monospace; color: var(--accent-cyan); font-size: 1.1rem;">#ZEM-849204</div>
+          </div>
+          <button id="finishCheckoutBtn" class="btn-primary" style="width: 100%; justify-content: center;">
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Admin Modal moved to admin.html -->
+
+  <!-- ==================== USER LOGIN & REGISTRATION MODAL ==================== -->
+  <div id="userModalOverlay" class="modal-overlay">
+    <div class="modal-card user-modal-card" style="max-width: 480px; padding: 2.5rem; border-top: 4px solid var(--accent-cyan);">
+      <button id="userModalCloseBtn" class="modal-close" aria-label="Close Account Menu"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Toggle Header -->
+      <div class="auth-tabs" style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.5rem;">
+        <button class="auth-tab active" id="tabSignInBtn" style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan);">Sign In</button>
+        <button class="auth-tab" id="tabRegisterBtn" style="font-size: 1.2rem; font-weight: 700; color: var(--text-muted);">Register</button>
+      </div>
+
+      <!-- Sign In View -->
+      <div id="authSignInView">
+        <form id="userLoginForm" onsubmit="return false;">
+          <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label class="form-label">Email Address *</label>
+            <input type="email" id="loginUserEmail" class="form-input" required placeholder="alex@zeemostore.io">
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label">Password *</label>
+            <input type="password" id="loginUserPassword" class="form-input" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+            Sign In <i class="fa-solid fa-right-to-bracket"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Register View -->
+      <div id="authRegisterView" style="display: none;">
+        <form id="userRegisterForm" onsubmit="return false;">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label">Full Name *</label>
+            <input type="text" id="registerUserName" class="form-input" required placeholder="Alex Vance">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label">Email Address *</label>
+            <input type="email" id="registerUserEmail" class="form-input" required placeholder="alex@zeemostore.io">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="registerUserPhone" class="form-input" required placeholder="e.g. +20 100 123 4567">
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label">Password *</label>
+            <input type="password" id="registerUserPassword" class="form-input" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;">
+            Register Account <i class="fa-solid fa-user-plus"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/products.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

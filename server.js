@@ -14,6 +14,7 @@ app.use(express.json({ limit: '50mb' })); // Support large base64 uploads
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve static frontend files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 // File-based Database Fallback Configurations (in case local MongoDB is absent)

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- STATE ---
-  let PRODUCTS = [];
+  let PRODUCTS = typeof DEFAULT_PRODUCTS !== 'undefined' ? [...DEFAULT_PRODUCTS] : [];
   let PROMO_CODES = {};
   let cart = JSON.parse(localStorage.getItem('lumina_cart')) || [];
   let wishlist = JSON.parse(localStorage.getItem('lumina_wishlist')) || [];
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroBestsellerBtn = document.getElementById('heroBestsellerBtn');
 
   // --- API DATA FETCHERS ---
-  let CATEGORIES = ["all", "audio", "wearables", "workspace", "apparel"];
+  let CATEGORIES = ["all", "sound", "wearables", "workspace", "apparel"];
 
   async function fetchConfig() {
     try {
@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const iconMap = {
       all: 'fa-solid fa-sparkles',
+      sound: 'fa-solid fa-headphones',
       audio: 'fa-solid fa-headphones',
       wearables: 'fa-solid fa-stopwatch',
       workspace: 'fa-solid fa-keyboard',
@@ -112,7 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
       PRODUCTS = await res.json();
     } catch (err) {
       console.error('Error fetching products:', err);
-      showToast('Could not load products from database.', 'danger');
+      if (!PRODUCTS || PRODUCTS.length === 0) {
+        showToast('Could not load products from database.', 'danger');
+      }
     }
   }
 
@@ -129,6 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- INITIALIZATION ---
   async function initializeApp() {
     initTheme();
+    renderCategoryTabs();
+    if (PRODUCTS.length > 0) {
+      renderProducts();
+    }
     await fetchConfig();
     await fetchProducts();
     await fetchPromos();
